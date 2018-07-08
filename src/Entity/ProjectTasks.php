@@ -70,9 +70,9 @@ class ProjectTasks
     /**
      * Get deadline
      *
-     * @return \DateTime
+     * 
      */
-    public function getDeadline(): ?date
+    public function getDeadline()
     {
         return $this->deadline;
     }

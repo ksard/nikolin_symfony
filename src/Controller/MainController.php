@@ -13,6 +13,11 @@ use Symfony\Component\Form\Extension\Core\Type\TextType;
 use Symfony\Component\Form\Extension\Core\Type\DateTimeType;
 use Symfony\Component\Form\Extension\Core\Type\SubmitType;
 
+use Symfony\Component\Serializer\Serializer;
+use Symfony\Component\Serializer\Encoder\XmlEncoder;
+use Symfony\Component\Serializer\Encoder\JsonEncoder;
+use Symfony\Component\Serializer\Normalizer\ObjectNormalizer;
+
 class MainController extends Controller
 {
     /**
@@ -20,10 +25,15 @@ class MainController extends Controller
      */
     public function index(Request $request)
     {
+        $encoders = array(new XmlEncoder(), new JsonEncoder());
+        $normalizers = array(new ObjectNormalizer());
+
+        $serializer = new Serializer($normalizers, $encoders);
         $tasksPerProject = [];
         $projects = [];
         $statuses = [];
         $projects = $this->getDoctrine()->getRepository(Projects::class)->findAll();
+        $projectsJson = $serializer->serialize($projects, 'json');
         $statuses = ['pending' => 'pending', 'done' => 'done', 'failed' => 'failed'];
         $tasksPerProject = $this->getTasksPerProject();
 
@@ -53,7 +63,7 @@ class MainController extends Controller
             $entityManager->persist($task);
             $entityManager->flush();
     
-            //return $this->redirectToRoute('task_success');
+            return $this->redirect($request->getUri());
         }
         
         return $this->render('tasks/index.html.twig', [
@@ -64,7 +74,14 @@ class MainController extends Controller
 
     public function getTasksPerProject()
     {
+        $encoders = array(new XmlEncoder(), new JsonEncoder());
+        $normalizers = array(new ObjectNormalizer());
+
+        $serializer = new Serializer($normalizers, $encoders);
+
         $tasks = $this->getDoctrine()->getRepository(ProjectTasks::class)->findAll();
+        $jsonTasks = $serializer->serialize($tasks, 'json');
+
         return $tasks;
     }
 }
