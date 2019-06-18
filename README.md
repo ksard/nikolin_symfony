@@ -1,2 +1,2 @@
 # nikolin_symfony
-nikolin symfony task
+small symfony rest api
